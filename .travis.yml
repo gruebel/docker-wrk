@@ -1,0 +1,32 @@
+sudo: required
+
+language: generic
+
+services:
+  - docker
+
+env:
+  global:
+    - PROJECT_NAME=wrk
+    - WRK_VERSION=4.0.2
+    - DOCKER_IMAGE_NAME=$DOCKER_USER/$PROJECT_NAME
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - docker --version
+
+script:
+  # build Docker image
+  - |
+    docker build \
+    --build-arg WRK_VERSION=${WRK_VERSION} \
+    --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+    -t ${DOCKER_IMAGE_NAME}:test \
+    .
+  # run tests
+  - DOCKER_IMAGE_VERSION_NAME=${DOCKER_IMAGE_NAME}:test ./tests/check.sh
+  # push Docker image
+  - docker login -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
+  - docker tag ${DOCKER_IMAGE_NAME}:test ${DOCKER_IMAGE_NAME}:${WRK_VERSION}
+  - docker push ${DOCKER_IMAGE_NAME}:${WRK_VERSION}

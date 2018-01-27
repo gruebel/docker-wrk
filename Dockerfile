@@ -1,7 +1,7 @@
 # build stage
 FROM alpine:3.7 as build
 
-ENV WRK_VERSION=4.0.2
+ARG WRK_VERSION
 
 RUN apk add --no-cache --virtual .build-deps \
     build-base \
@@ -20,6 +20,11 @@ RUN upx --best --lzma -o /wrk /wrk.org
 
 # final stage
 FROM alpine:3.7
+
+ARG BUILD_DATE
+
+LABEL org.label-schema.build-date=${BUILD_DATE} \
+      org.label-schema.schema-version="1.0"
 
 RUN apk add --no-cache \
     libgcc
