@@ -1,7 +1,7 @@
 # build stage
 FROM alpine:3.7 as build
 
-ARG WRK_VERSION
+ARG WRK_VERSION=4.0.2
 
 RUN apk add --no-cache --virtual .build-deps \
     build-base \
